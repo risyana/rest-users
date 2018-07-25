@@ -7,7 +7,11 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  res.status(200).json({ message: 'POST new user' });
+  const newUser = { ...req.body };
+  res.status(201).json({
+    message: 'POST new user',
+    newUser,
+  });
 });
 
 router.get('/:id', (req, res) => {
