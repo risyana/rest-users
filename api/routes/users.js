@@ -27,7 +27,7 @@ router.get('/', (req, res) => {
 
 // INSERT NEW USER
 router.post('/', (req, res) => {
-  const newUser = { ...req.body };
+  const newUser = { ...req.body }; // email, name, password, phone
   const newUserArray = [null, newUser.email, newUser.name, newUser.password, newUser.phone];
   stmt = 'INSERT INTO USERS VALUES (?, ?, ?, ?, ?)';
 
@@ -79,19 +79,26 @@ router.get('/:id', (req, res) => {
 
 // UPDATE SPECIFIC USER
 router.patch('/:id', (req, res) => {
-  const updatedUser = { ...req.body };
+  const updatedUser = { ...req.body }; // email, name, password, phone
   const { id } = req.params;
   const updatedUserArray = [updatedUser.email, updatedUser.name,
     updatedUser.password, updatedUser.phone, id];
   stmt = 'UPDATE USERS SET email = ?, name = ?, password = ?, phone = ? WHERE id = ?';
 
-  db.run(stmt, updatedUserArray, (err) => {
-    if (err) {
-      res.status(404).json({ message: err.message });
+  bcrypt.hash(updatedUser.password, saltRound, (error, hash) => {
+    if (error) {
+      res.status(404).json({ message: error.message });
     } else {
-      res.status(201).json({
-        message: `PATCH specific user ${id}`,
-        updatedUser,
+      updatedUserArray[2] = hash;
+      db.run(stmt, updatedUserArray, (err) => {
+        if (err) {
+          res.status(404).json({ message: err.message });
+        } else {
+          res.status(201).json({
+            message: `PATCH specific user ${id}`,
+            updatedUser,
+          });
+        }
       });
     }
   });
@@ -107,6 +114,44 @@ router.delete('/:id', (req, res) => {
       res.status(404).json({ message: err.message });
     } else {
       res.status(200).json({ message: `DELETE specific user ${id}` });
+    }
+  });
+});
+
+// USER SIGN IN
+router.post('/signin', (req, res) => {
+  const loginCredential = { ...req.body }; // email, password
+  const rows = [];
+
+  stmt = 'SELECT * FROM USERS WHERE email = ?';
+
+  db.each(stmt, loginCredential.email, (error, row) => {
+    if (error) {
+      res.status(404).json({ message: error.message });
+    } else {
+      rows.push(row);
+    }
+  }, () => {
+    if (rows.length < 1) {
+      res.status(404).json({ message: 'Auth failed (No email auth)' });
+    } else {
+      bcrypt.compare(loginCredential.password, rows[0].password, (err, result) => {
+        if (err) {
+          res.status(404).json({ message: `Auth failed : ${err.message}` });
+        } else if (!result) {
+          res.status(404).json({ message: 'Auth failed (Incorrect password)' });
+        } else {
+          res.status(200).json({
+            message: 'Authenticated',
+            user: {
+              id: rows[0].id,
+              email: rows[0].email,
+              name: rows[0].name,
+              phone: rows[0].phone,
+            },
+          });
+        }
+      });
     }
   });
 });
