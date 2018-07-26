@@ -1,8 +1,10 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const db = require('../../database');
 
 const router = express.Router();
 let stmt = '';
+const saltRound = 10;
 
 // GET ALL USERS
 router.get('/', (req, res) => {
@@ -26,16 +28,23 @@ router.get('/', (req, res) => {
 // INSERT NEW USER
 router.post('/', (req, res) => {
   const newUser = { ...req.body };
+  const newUserArray = [null, newUser.email, newUser.name, newUser.password, newUser.phone];
   stmt = 'INSERT INTO USERS VALUES (?, ?, ?, ?, ?)';
 
-  const newUserArray = [null, newUser.email, newUser.name, newUser.password, newUser.phone];
-  db.run(stmt, newUserArray, (err) => {
-    if (err) {
-      res.status(404).json({ message: err.message });
+  bcrypt.hash(newUser.password, saltRound, (error, hash) => {
+    if (error) {
+      res.status(404).json({ message: error.message });
     } else {
-      res.status(201).json({
-        message: 'POST new user',
-        newUser,
+      newUserArray[3] = hash;
+      db.run(stmt, newUserArray, (err) => {
+        if (err) {
+          res.status(404).json({ message: err.message });
+        } else {
+          res.status(201).json({
+            message: 'POST new user',
+            newUser,
+          });
+        }
       });
     }
   });
