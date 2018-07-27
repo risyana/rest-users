@@ -17,17 +17,17 @@ Please ensure these were installed :
 
 Please check following resources description :
 
-| Resources | | Verb |    | Description   |
-|----------|:---:|:------------|:----:|------|
-| ---------------------- |--| -----------------|--|---------------------------------|
-| /users |  |   GET       |     |  Get all users |
-| /users | |     POST  |     |   Register new user |
-| /users/{id} |  |  GET  |  |  Get one user |
-| /users/{id} | |  PATCH|  |  Update specific user |
-| /users/{id} | |  DELETE|  |  Delete specific user |
-| /users/signin |  |  POST|  |  User sign in|
-| ---------------------- |--| -----------------|--|---------------------------------|
-Example URL:
+| Resources | Verb | Description   |
+|----------|------------|------|
+| /users |   GET       |  Get all users |
+| /users |   POST  |  Register new user |
+| /users/{id} |    GET  |    Get one user |
+| /users/{id} |  PATCH|    Update specific user |
+| /users/{id} |  DELETE|  Delete specific user |
+| /users/signin |   POST|   User sign in|
+
+
+### Example URL:
 
 * *[localhost:2121/users](localhost:2121/users)*
 
