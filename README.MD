@@ -1,3 +1,7 @@
+### Introduction
+
+This is a REST API which serve the user management system. Currently only one resource available (which is : Users information)
+
 ### Pre-Installation
 
 Please ensure these were installed :
@@ -6,7 +10,7 @@ Please ensure these were installed :
 
 ### Installation
 
-* Fork this repository
+* Clone this repo to your local machine
 * run `npm install` in root folder.
 
 ### Development server
@@ -29,8 +33,11 @@ Please check following resources description :
 
 ### Example URL:
 
-* *[localhost:2121/users](localhost:2121/users)*
+http://localhost:2121/users
 
-* *[localhost:2121/users/1](localhost:2121/users/1)*
+http://localhost:2121/users/1
 
+### Front End Side
+
+Please visit this repo : https://github.com/risyana/frontend-users
 
