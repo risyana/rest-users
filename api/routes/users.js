@@ -1,13 +1,15 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const db = require('../../database');
+const checkToken = require('../middleware/check-token');
 
 const router = express.Router();
 let stmt = '';
 const saltRound = 10;
 
 // GET ALL USERS
-router.get('/', (req, res) => {
+router.get('/', checkToken, (req, res) => {
   const rows = [];
   stmt = 'SELECT * FROM USERS';
 
@@ -26,7 +28,7 @@ router.get('/', (req, res) => {
 });
 
 // INSERT NEW USER
-router.post('/', (req, res) => {
+router.post('/', checkToken, (req, res) => {
   const newUser = { ...req.body }; // email, name, password, phone
   const newUserArray = [null, newUser.email, newUser.name, newUser.password, newUser.phone];
   stmt = 'INSERT INTO USERS VALUES (?, ?, ?, ?, ?)';
@@ -51,7 +53,7 @@ router.post('/', (req, res) => {
 });
 
 // GET ONE SPECIFIC USER
-router.get('/:id', (req, res) => {
+router.get('/:id', checkToken, (req, res) => {
   const { id } = req.params;
   const rows = [];
   stmt = 'SELECT * FROM USERS WHERE id = ?';
@@ -78,7 +80,7 @@ router.get('/:id', (req, res) => {
 });
 
 // UPDATE SPECIFIC USER
-router.patch('/:id', (req, res) => {
+router.patch('/:id', checkToken, (req, res) => {
   const updatedUser = { ...req.body }; // email, name, password, phone
   const { id } = req.params;
   const updatedUserArray = [updatedUser.email, updatedUser.name,
@@ -105,7 +107,7 @@ router.patch('/:id', (req, res) => {
 });
 
 // DELETE SPECIFIC USER
-router.delete('/:id', (req, res) => {
+router.delete('/:id', checkToken, (req, res) => {
   const { id } = req.params;
   stmt = 'DELETE FROM USERS WHERE id = (?)';
 
@@ -141,6 +143,17 @@ router.post('/signin', (req, res) => {
         } else if (!result) {
           res.status(404).json({ message: 'Auth failed (Incorrect password)' });
         } else {
+          const token = jwt.sign(
+            {
+              id: rows[0].id,
+              email: rows[0].email,
+              name: rows[0].name,
+              phone: rows[0].phone,
+            }, process.env.JWT_KEY || 'rahasia',
+            {
+              expiresIn: '1h',
+            },
+          );
           res.status(200).json({
             message: 'Authenticated',
             user: {
@@ -149,6 +162,7 @@ router.post('/signin', (req, res) => {
               name: rows[0].name,
               phone: rows[0].phone,
             },
+            token,
           });
         }
       });
