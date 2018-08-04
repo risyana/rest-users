@@ -4,7 +4,7 @@
   "description": "REST API of users",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -w",
     "start": "nodemon server.js"
   },
   "author": "risyana@gmail.com",
@@ -16,9 +16,12 @@
     "sqlite3": "^4.0.2"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0",
+    "mocha": "^5.2.0",
     "nodemon": "^1.18.3"
   }
 }
