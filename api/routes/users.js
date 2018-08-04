@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const db = require('../../database');
+const checkToken = require('../middleware/check-token'); // add jwt
 
 const router = express.Router();
 let stmt = '';
