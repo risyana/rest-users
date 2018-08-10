@@ -4,7 +4,7 @@
   "description": "REST API of users",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -w",
+    "test": "nyc --reporter=html --reporter=text mocha",
     "start": "nodemon server.js"
   },
   "author": "risyana@gmail.com",
@@ -13,6 +13,7 @@
     "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
     "sqlite3": "^4.0.2"
   },
   "devDependencies": {
@@ -22,6 +23,7 @@
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.3"
+    "nodemon": "^1.18.3",
+    "nyc": "^12.0.2"
   }
 }
