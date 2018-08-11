@@ -4,7 +4,8 @@
   "description": "REST API of users",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha",
+    "test": "mocha -w ",
+    "testWithCoverage": "nyc --reporter=html --reporter=text mocha",
     "start": "nodemon server.js"
   },
   "author": "risyana@gmail.com",
