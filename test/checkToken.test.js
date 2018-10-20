@@ -1,7 +1,5 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const users = require('../api/routes/users');
-const checkToken = require('../api/middleware/check-token');
 const server = require('../server');
 
 chai.use(chaiHttp);

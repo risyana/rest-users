@@ -28,8 +28,7 @@ router.get('/', checkToken, (req, res) => {
 });
 
 // INSERT NEW USER
-//router.post('/', (req, res) => {
-  router.post('/', checkToken, (req, res) => {
+router.post('/', (req, res) => {
   const newUser = { ...req.body }; // email, name, password, phone
   const newUserArray = [null, newUser.email, newUser.name, newUser.password, newUser.phone];
   stmt = 'INSERT INTO USERS VALUES (?, ?, ?, ?, ?)';
@@ -118,7 +117,6 @@ router.patch('/:id', checkToken, (req, res) => {
             });
           }
         });
-
       });
     }
   });
@@ -126,20 +124,19 @@ router.patch('/:id', checkToken, (req, res) => {
 
 // DELETE SPECIFIC USER
 router.delete('/:id', checkToken, (req, res) => {
-  let stmt = '';
   const { id } = req.params;
 
-  stmt = 'SELECT COUNT(1) COUNT FROM USERS WHERE id = (?)'
+  stmt = 'SELECT COUNT(1) COUNT FROM USERS WHERE id = ?';
   db.get(stmt, id, (err, row) => {
     if (err) {
       res.status(404).json({ message: err.message });
     } else if (row.COUNT === 0) {
-      res.status(202).json({ message: 'nothing to delete'});
+      res.status(202).json({ message: 'nothing to delete' });
     } else {
-      stmt = 'DELETE FROM USERS WHERE id = (?)';
-      db.run(stmt, id, (err) => {
-        if (err) {
-          res.status(404).json({ message: err.message });
+      stmt = 'DELETE FROM USERS WHERE id = ?';
+      db.run(stmt, id, (error) => {
+        if (error) {
+          res.status(404).json({ message: error.message });
         } else {
           res.status(200).json({ message: `DELETE specific user ${id}` });
         }
