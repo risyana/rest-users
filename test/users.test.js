@@ -1,15 +1,12 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../server');
 const bcrypt = require('bcrypt');
-
-const should = chai.should();
-const { expect } = chai;
+const server = require('../server');
 const db = require('../database');
 
-const users = require('../api/routes/users');
+const { expect } = chai;
 
-const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDY4LCJlbWFpbCI6ImxhaUBhcGEuY29tIiwibmFtZSI6ImxhaWxpIiwicGhvbmUiOiIxMTIyMzMzMzIyMTEiLCJpYXQiOjE1MzQwMjEyODYsImV4cCI6MTUzNDEwMDQ4Nn0.mFJEy25-ypy3UCeyakUwFvH5nsCeFM7ky-DfIl6gm_o';
+const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcyLCJlbWFpbCI6ImxhaUBhcGEuY29tIiwibmFtZSI6ImxhaWxpIiwicGhvbmUiOiIxMTIyMzMzMzIyMTEiLCJpYXQiOjE1Mzk5OTMyMzUsImV4cCI6MTU0MDA3MjQzNX0.u7y4afuZibgx_A0rwwfMcROY4lVIMUWUw5zvAuirBkU';
 const invalidToken = 'Bearer xyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjYsImVtYWlsIjoibGFpbGlAYXBhLmNvbSIsIm5hbWUiOiJsYWlsaSBmYXpyaSBwcmliYWRpIiwicGhvbmUiOiI5MDkwOTA5MCIsImlhdCI6MTUzMzM2NjU5NiwiZXhwIjoxNTMzMzcwMTk2fQ.b9XbKeddwyjao3DPhqvkxUDugANSBLT4jRC0AyGEpHk';
 
 chai.use(chaiHttp);
@@ -22,14 +19,14 @@ describe('USERS', () => {
       password: 'something1234',
       phone: '44552211',
     };
-    
+
     const invalidNewUser = {
       email: 'yyyyy@xxx.com',
       name: 'xxxx',
       password: null,
       phone: '44552211',
     };
-    
+
     const nullNewUser = {
       email: null,
       name: 'xxxx',
@@ -40,7 +37,6 @@ describe('USERS', () => {
     it('It should post new user', (done) => {
       chai.request(server)
         .post('/users')
-        .set('Authorization', token)
         .send(newUser)
         .end((err, res) => {
           res.should.have.status(201);
@@ -54,21 +50,21 @@ describe('USERS', () => {
         });
     });
 
-  after(() => {
+    after(() => {
       let stmt = '';
       let lastID;
       // get latest ID
       stmt = 'SELECT MAX(ID) ID FROM USERS';
       db.get(stmt, (err, row) => {
         if (err) {
-          console.log("err select: ",err);
+          console.log('err select: ', err);
         } else {
           lastID = row.ID;
           // delete latest ID
           stmt = 'DELETE FROM USERS WHERE ID = ? ';
-          db.run(stmt, lastID, (err, row) => {
-            if (err) {
-              console.log("err delete: ", err);
+          db.run(stmt, lastID, (error) => {
+            if (error) {
+              console.log('err delete: ', error);
             }
           });
         }
@@ -86,7 +82,7 @@ describe('USERS', () => {
           res.body.should.have.property('message');
           res.body.message.should.be.a('string');
           done();
-        })
+        });
     });
 
     it('should not post new user. Due to email, name, phone is blank', (done) => {
@@ -100,9 +96,8 @@ describe('USERS', () => {
           res.body.should.have.property('message');
           res.body.message.should.be.a('string');
           done();
-        })
-    })
-
+        });
+    });
   });
 
   describe('GET /users', () => {
@@ -133,7 +128,7 @@ describe('USERS', () => {
 
           done();
         });
-    })
+    });
   });
 
   describe('GET /users/:id', () => {
@@ -152,7 +147,7 @@ describe('USERS', () => {
           res.body.should.have.property('user');
           res.body.user.should.be.a('object');
           done();
-        })
+        });
     });
 
     it('It should NOT get a user. Due to record not found', (done) => {
@@ -167,9 +162,8 @@ describe('USERS', () => {
           res.body.should.have.property('user');
           expect(res.body.user).to.be.a('null');
           done();
-        })
+        });
     });
-
   });
 
   describe('PATCH /users/:id', () => {
@@ -210,12 +204,14 @@ describe('USERS', () => {
           res.body.updatedUser.should.have.property('name');
           res.body.updatedUser.should.have.property('password');
           res.body.updatedUser.should.have.property('phone');
-          bcrypt.compare(updatedUser.password, res.body.updatedUser.password, (err, result) => {       
+          bcrypt.compare(updatedUser.password, res.body.updatedUser.password, (error, result) => {
             passwordCompare = result;
             passwordCompare.should.eql(true);
           });
-          const expectedUpdatedUser = Object.assign({}, updatedUser.email, updatedUser.name, updatedUser.phone);
-          const actualUpdatedUser = Object.assign({}, res.body.updatedUser.email, res.body.updatedUser.name, res.body.updatedUser.phone);
+          const expectedUpdatedUser = Object.assign({},
+            updatedUser.email, updatedUser.name, updatedUser.phone);
+          const actualUpdatedUser = Object.assign({},
+            res.body.updatedUser.email, res.body.updatedUser.name, res.body.updatedUser.phone);
 
           JSON.stringify(actualUpdatedUser).should.eql(JSON.stringify(expectedUpdatedUser));
           done();
@@ -234,7 +230,6 @@ describe('USERS', () => {
           res.body.message.should.eql('nothing to update');
           done();
         });
-
     });
 
     it('should not update user. Due to password is blank', (done) => {
@@ -248,7 +243,7 @@ describe('USERS', () => {
           res.body.should.have.property('message');
           res.body.message.should.be.a('string');
           done();
-        })
+        });
     });
 
     it('should not update user. Due to email, name, phone is blank', (done) => {
@@ -262,14 +257,13 @@ describe('USERS', () => {
           res.body.should.have.property('message');
           res.body.message.should.be.a('string');
           done();
-        })
+        });
     });
-
   });
 
   describe('DELETE /users/:id', () => {
     let deletedId = 9999;
-    let nonExistUserId = 8888;
+    const nonExistUserId = 8888;
     const dummyUser = {
       email: 'dummy@yayay.com',
       name: 'dummy',
@@ -279,22 +273,22 @@ describe('USERS', () => {
 
     before((done) => {
       // POST Dummy user
-      chai.request(server)  
+      chai.request(server)
         .post('/users/')
         .set('Authorization', token)
         .send(dummyUser)
-        .end((err, res) => {
+        .end((err) => {
           if (err) {
-            console.log("POST ", err);
+            console.log('POST ', err);
           } else {
             // SIGN IN Dummy User to get its ID
             chai.request(server)
               .post('/users/signin')
               .set('Authorization', token)
               .send({ email: dummyUser.email, password: dummyUser.password })
-              .end((err, res) => {
-                if (err) {
-                  console.log("SIGN IN ", err);
+              .end((error, res) => {
+                if (error) {
+                  console.log('SIGN IN ', error);
                 } else {
                   deletedId = res.body.user.id;
                 }
@@ -302,7 +296,7 @@ describe('USERS', () => {
               });
           }
         });
-    })
+    });
 
     it('should be delete one specific user', (done) => {
       chai.request(server)
@@ -333,21 +327,21 @@ describe('USERS', () => {
 
   describe('POST /users/signin', () => {
     const validCredential = {
-      "email": "lai@apa.com",
-      "password": "laili1234"
+      email: 'lai@apa.com',
+      password: 'laili1234',
     };
     const invalidEmail = {
-      "email": "laixxxxxxx@apa.com",
-      "password": "laili1234"
+      email: 'laixxxxxxx@apa.com',
+      password: 'laili1234',
     };
     const invalidPass = {
-      "email": "lai@apa.com",
-      "password": "xxxxxxxxxxxxx"
-    }
+      email: 'lai@apa.com',
+      password: 'xxxxxxxxxxxxx',
+    };
     const nullPass = {
-      "email": "lai@apa.com",
-      "password": null
-    }
+      email: 'lai@apa.com',
+      password: null,
+    };
 
     it('should successfully signin', (done) => {
       chai.request(server)
@@ -402,5 +396,4 @@ describe('USERS', () => {
         });
     });
   });
-
 });
