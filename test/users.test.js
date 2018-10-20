@@ -12,6 +12,102 @@ const invalidToken = 'Bearer xyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjYsIm
 chai.use(chaiHttp);
 
 describe('USERS', () => {
+  describe('POST /users/emails', () => {
+    it('Should return raw.COUNT = 0', (done) => {
+      chai.request(server)
+        .post('/users/emails')
+        .send({ email: 'inipastigakada@xx.com' })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.have.property('message');
+          res.body.message.should.eql('Get number of email');
+          res.body.should.have.property('row');
+          res.body.row.should.be.a('object');
+          res.body.row.should.have.property('COUNT');
+          res.body.row.COUNT.should.be.eql(0);
+          done();
+        });
+    });
+
+    before(() => {
+      const email = 'inipastiada@ada.com';
+      const dummy = [null, email, 'y', 'z', '1'];
+      const stmt = 'INSERT INTO USERS VALUES (?, ?, ?, ?, ?)';
+      db.run(stmt, dummy);
+    });
+    it('Should return raw.COUNT > 1', (done) => {
+      chai
+        .request(server)
+        .post('/users/emails')
+        .send({ email: 'inipastiada@ada.com' })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.have.property('message');
+          res.body.message.should.eql('Get number of email');
+          res.body.should.have.property('row');
+          res.body.row.should.be.a('object');
+          res.body.row.should.have.property('COUNT');
+          res.body.row.COUNT.should.greaterThan(0);
+          done();
+        });
+    });
+    after(() => {
+      const email = 'inipastiada@ada.com';
+      const stmt = 'DELETE FROM USERS WHERE EMAIL = ?';
+      db.run(stmt, email);
+    });
+  });
+
+  describe('POST /users/phones', () => {
+    it('Should return raw.COUNT = 0', (done) => {
+      chai.request(server)
+        .post('/users/phones')
+        .send({ phone: '99999999999999111111111777777' })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.have.property('message');
+          res.body.message.should.eql('Get number of phone');
+          res.body.should.have.property('row');
+          res.body.row.should.be.a('object');
+          res.body.row.should.have.property('COUNT');
+          res.body.row.COUNT.should.be.eql(0);
+          done();
+        });
+    });
+
+    before(() => {
+      const phone = '1234567890123';
+      const dummy = [null, 'x', 'y', 'z', phone];
+      const stmt = 'INSERT INTO USERS VALUES (?, ?, ?, ?, ?)';
+      db.run(stmt, dummy);
+    });
+    it('Should return raw.COUNT > 1', (done) => {
+      chai
+        .request(server)
+        .post('/users/phones')
+        .send({ phone: '1234567890123' })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.have.property('message');
+          res.body.message.should.eql('Get number of phone');
+          res.body.should.have.property('row');
+          res.body.row.should.be.a('object');
+          res.body.row.should.have.property('COUNT');
+          res.body.row.COUNT.should.greaterThan(0);
+          done();
+        });
+    });
+    after(() => {
+      const phone = '1234567890123';
+      const stmt = 'DELETE FROM USERS WHERE PHONE = ?';
+      db.run(stmt, phone);
+    });
+  });
+
   describe('POST /users', () => {
     const newUser = {
       email: 'yyyyy@xxx.com',
@@ -213,7 +309,7 @@ describe('USERS', () => {
           const actualUpdatedUser = Object.assign({},
             res.body.updatedUser.email, res.body.updatedUser.name, res.body.updatedUser.phone);
 
-          JSON.stringify(actualUpdatedUser).should.eql(JSON.stringify(expectedUpdatedUser));
+          actualUpdatedUser.should.eql(expectedUpdatedUser);
           done();
         });
     });
