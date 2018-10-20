@@ -8,6 +8,34 @@ const router = express.Router();
 let stmt = '';
 const saltRound = 10;
 
+// COMMON
+const checkExistence = (field, value, res) => {
+  stmt = `SELECT COUNT(1) COUNT FROM USERS WHERE ${field} = ? `;
+  db.each(stmt, value, (err, row) => {
+    if (err) {
+      res.status(404).json({ message: err.message });
+    } else {
+      res.status(200).json({ message: `Get number of ${field}`, row });
+    }
+  });
+};
+
+// test route
+router.get('/test', (req, res) => {
+  res.status(200).json({ message: 'Resource Available..' });
+});
+
+// Check existence
+router.post('/emails', (req, res) => {
+  const { email } = req.body;
+  checkExistence('email', email, res);
+});
+
+router.post('/phones', (req, res) => {
+  const { phone } = req.body;
+  checkExistence('phone', phone, res);
+});
+
 // GET ALL USERS
 router.get('/', checkToken, (req, res) => {
   const rows = [];
@@ -94,7 +122,7 @@ router.patch('/:id', checkToken, (req, res) => {
       updatedUserArray[2] = hash;
       db.serialize(() => {
         // check id
-        stmt = 'SELECT email, name, password, phone from USERS WHERE id = ?';
+        stmt = 'SELECT id, email, name, password, phone from USERS WHERE id = ?';
         db.each(stmt, id, (err, row) => {
           if (err) {
             res.status(404).json({ message: err.message });
@@ -113,7 +141,7 @@ router.patch('/:id', checkToken, (req, res) => {
           } else {
             res.status(201).json({
               message: `PATCH specific user ${id}`,
-              updatedUser: rows[0],
+              updatedUser: { ...updatedUser, password: updatedUserArray[2], id },
             });
           }
         });
