@@ -5,8 +5,11 @@ const server = require('../server');
 const db = require('../database');
 
 const { expect } = chai;
+const should = chai.should();
 
-const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcyLCJlbWFpbCI6ImxhaUBhcGEuY29tIiwibmFtZSI6ImxhaWxpIiwicGhvbmUiOiIxMTIyMzMzMzIyMTEiLCJpYXQiOjE1Mzk5OTMyMzUsImV4cCI6MTU0MDA3MjQzNX0.u7y4afuZibgx_A0rwwfMcROY4lVIMUWUw5zvAuirBkU';
+// long expiry token: 23 Oct 2023
+const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjcyLCJlbWFpbCI6ImxhaUBhcGEuY29tIiwibmFtZSI6ImxhaWxpIiwicGhvbmUiOiIxMTIyMzMzMzIyMTEiLCJpYXQiOjE1NDAwNzMzMzUsImV4cCI6MTY5Nzg2MTMzNX0.T9G1e-Ay3H7rmtUtd0GE0T9ldYycJbNWRcsfuJunBFo';
+// expired token
 const invalidToken = 'Bearer xyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjYsImVtYWlsIjoibGFpbGlAYXBhLmNvbSIsIm5hbWUiOiJsYWlsaSBmYXpyaSBwcmliYWRpIiwicGhvbmUiOiI5MDkwOTA5MCIsImlhdCI6MTUzMzM2NjU5NiwiZXhwIjoxNTMzMzcwMTk2fQ.b9XbKeddwyjao3DPhqvkxUDugANSBLT4jRC0AyGEpHk';
 
 chai.use(chaiHttp);
