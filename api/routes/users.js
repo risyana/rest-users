@@ -20,11 +20,6 @@ const checkExistence = (field, value, res) => {
   });
 };
 
-// test route
-router.get('/test', (req, res) => {
-  res.status(200).json({ message: 'Resource Available..' });
-});
-
 // Check existence
 router.post('/emails', (req, res) => {
   const { email } = req.body;
@@ -204,7 +199,7 @@ router.post('/signin', (req, res) => {
               phone: rows[0].phone,
             }, process.env.JWT_KEY || 'rahasia',
             {
-              expiresIn: '22h',
+              expiresIn: '48h',
             },
           );
           res.status(200).json({
