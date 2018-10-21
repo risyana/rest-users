@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const userRoute = require('./api/routes/users');
+const generalRoute = require('./api/routes/general');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use('/users', userRoute);
+app.use('/general', generalRoute);
 
 // error handling 'Resource not found'
 app.use((req, res, next) => {
