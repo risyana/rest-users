@@ -274,19 +274,12 @@ describe('USERS', () => {
       password: 'satu123123',
       phone: '01018181818',
     };
-    const invalidUpdatedUser = {
-      email: 'new123@yayay.com',
-      name: 'new',
-      password: null,
-      phone: '01018181818',
-    };
     const nullUpdatedUser = {
       email: null,
       name: 'new',
       password: 'aaaaaaaaa12123',
       phone: '01018181818',
     };
-    let passwordCompare = false;
 
     it('should update user', (done) => {
       chai.request(server)
@@ -303,10 +296,6 @@ describe('USERS', () => {
           res.body.updatedUser.should.have.property('name');
           res.body.updatedUser.should.have.property('password');
           res.body.updatedUser.should.have.property('phone');
-          bcrypt.compare(updatedUser.password, res.body.updatedUser.password, (error, result) => {
-            passwordCompare = result;
-            passwordCompare.should.eql(true);
-          });
           const expectedUpdatedUser = Object.assign({},
             updatedUser.email, updatedUser.name, updatedUser.phone);
           const actualUpdatedUser = Object.assign({},
@@ -331,20 +320,6 @@ describe('USERS', () => {
         });
     });
 
-    it('should not update user. Due to password is blank', (done) => {
-      chai.request(server)
-        .patch(`/users/${updatedUserId}`)
-        .set('Authorization', token)
-        .send(invalidUpdatedUser)
-        .end((err, res) => {
-          res.should.have.status(404);
-          res.body.should.be.a('object');
-          res.body.should.have.property('message');
-          res.body.message.should.be.a('string');
-          done();
-        });
-    });
-
     it('should not update user. Due to email, name, phone is blank', (done) => {
       chai.request(server)
         .patch(`/users/${updatedUserId}`)
@@ -355,6 +330,59 @@ describe('USERS', () => {
           res.body.should.be.a('object');
           res.body.should.have.property('message');
           res.body.message.should.be.a('string');
+          done();
+        });
+    });
+  });
+
+  describe('PATCH /users/password/:id', () => {
+    const updatedUserId = 16;
+    const nonExistUserId = 99999;
+    const validPassword = {
+      password: 'myNewPassword',
+    };
+    const blankPassword = {
+      password: null,
+    };
+    it('should update password', (done) => {
+      chai.request(server)
+        .patch(`/users/password/${updatedUserId}`)
+        .set('Authorization', token)
+        .send(validPassword)
+        .end((err, res) => {
+          res.should.have.status(201);
+          res.body.should.have.property('message');
+          res.body.message.should.eql(`PATCH password for user ${updatedUserId}`);
+          res.body.should.have.property('updatedUser');
+          res.body.updatedUser.should.have.property('id');
+          res.body.updatedUser.should.have.property('email');
+          res.body.updatedUser.should.have.property('phone');
+          res.body.updatedUser.id.should.eql(updatedUserId);
+          done();
+        });
+    });
+    it('should not update anything, due to user id is not exist', (done) => {
+      chai.request(server)
+        .patch(`/users/password/${nonExistUserId}`)
+        .set('Authorization', token)
+        .send(validPassword)
+        .end((err, res) => {
+          res.should.have.status(202);
+          res.body.should.have.property('message');
+          res.body.message.should.eql('nothing to update');
+          res.body.should.not.have.property('updatedUser');
+          done();
+        });
+    });
+    it('should not update password, due to new password is blank', (done) => {
+      chai.request(server)
+        .patch(`/users/password/${updatedUserId}`)
+        .set('Authorization', token)
+        .send(blankPassword)
+        .end((err, res) => {
+          res.should.have.status(404);
+          res.body.should.have.property('message');
+          res.body.should.not.have.property('updatedUser');
           done();
         });
     });

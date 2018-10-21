@@ -106,18 +106,52 @@ router.get('/:id', checkToken, (req, res) => {
 router.patch('/:id', checkToken, (req, res) => {
   const updatedUser = { ...req.body }; // email, name, password, phone
   const { id } = req.params;
-  const updatedUserArray = [updatedUser.email, updatedUser.name,
-    updatedUser.password, updatedUser.phone, id];
+  const updatedUserArray = [updatedUser.email, updatedUser.name, updatedUser.phone, id];
+  const rows = [];
+
+  db.serialize(() => {
+    // check id
+    stmt = 'SELECT id, email, name, phone from USERS WHERE id = ?';
+    db.each(stmt, id, (err, row) => {
+      if (err) {
+        res.status(404).json({ message: err.message });
+      } else {
+        rows.push(row);
+      }
+    });
+
+    // update
+    stmt = 'UPDATE USERS SET email = ?, name = ?, phone = ? WHERE id = ?';
+    db.run(stmt, updatedUserArray, (err) => {
+      if (err) {
+        res.status(404).json({ message: err.message });
+      } else if (rows.length <= 0) {
+        res.status(202).json({ message: 'nothing to update' });
+      } else {
+        res.status(201).json({
+          message: `PATCH specific user ${id}`,
+          updatedUser: { ...updatedUser },
+        });
+      }
+    });
+  });
+});
+
+// UPDATE PASSWORD FOR SPECIFIC USER
+router.patch('/password/:id', checkToken, (req, res) => {
+  const updatedUser = { ...req.body }; // password
+  const { id } = req.params;
+  const updatedUserArray = [updatedUser.password, id];
   const rows = [];
 
   bcrypt.hash(updatedUser.password, saltRound, (error, hash) => {
     if (error) {
       res.status(404).json({ message: error.message });
     } else {
-      updatedUserArray[2] = hash;
+      updatedUserArray[0] = hash;
       db.serialize(() => {
         // check id
-        stmt = 'SELECT id, email, name, password, phone from USERS WHERE id = ?';
+        stmt = 'SELECT id, email, name, phone from USERS WHERE id = ?';
         db.each(stmt, id, (err, row) => {
           if (err) {
             res.status(404).json({ message: err.message });
@@ -127,7 +161,7 @@ router.patch('/:id', checkToken, (req, res) => {
         });
 
         // update
-        stmt = 'UPDATE USERS SET email = ?, name = ?, password = ?, phone = ? WHERE id = ?';
+        stmt = 'UPDATE USERS SET password = ? WHERE id = ?';
         db.run(stmt, updatedUserArray, (err) => {
           if (err) {
             res.status(404).json({ message: err.message });
@@ -135,8 +169,8 @@ router.patch('/:id', checkToken, (req, res) => {
             res.status(202).json({ message: 'nothing to update' });
           } else {
             res.status(201).json({
-              message: `PATCH specific user ${id}`,
-              updatedUser: { ...updatedUser, password: updatedUserArray[2], id },
+              message: `PATCH password for user ${id}`,
+              updatedUser: { ...rows[0] },
             });
           }
         });
