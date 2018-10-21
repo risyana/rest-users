@@ -79,7 +79,7 @@ router.post('/', (req, res) => {
 router.get('/:id', checkToken, (req, res) => {
   const { id } = req.params;
   const rows = [];
-  stmt = 'SELECT * FROM USERS WHERE id = ?';
+  stmt = 'SELECT id, email, name, phone FROM USERS WHERE id = ?';
 
   db.each(stmt, id, (err, row) => {
     if (err) {
