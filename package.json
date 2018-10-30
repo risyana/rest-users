@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "REST API of users",
   "main": "index.js",
+  "engines": {
+    "node": "10.0.0"
+  },
   "scripts": {
     "test": "mocha -w ",
     "testWithCoverage": "nyc --reporter=html --reporter=text mocha",
