@@ -266,7 +266,7 @@ describe('USERS', () => {
   });
 
   describe('PATCH /users/:id', () => {
-    const updatedUserId = 16;
+    const updatedUserId = 7;
     const nonExistUserId = 99999;
     const updatedUser = {
       email: 'new123@yayay.com',
@@ -336,7 +336,7 @@ describe('USERS', () => {
   });
 
   describe('PATCH /users/password/:id', () => {
-    const updatedUserId = 16;
+    const updatedUserId = 7;
     const nonExistUserId = 99999;
     const validPassword = {
       password: 'myNewPassword',
@@ -454,7 +454,7 @@ describe('USERS', () => {
 
   describe('POST /users/signin', () => {
     const validCredential = {
-      email: 'lai@apa.com',
+      email: 'laili@apa.com',
       password: 'laili1234',
     };
     const invalidEmail = {
@@ -462,11 +462,11 @@ describe('USERS', () => {
       password: 'laili1234',
     };
     const invalidPass = {
-      email: 'lai@apa.com',
+      email: 'laili@apa.com',
       password: 'xxxxxxxxxxxxx',
     };
     const nullPass = {
-      email: 'lai@apa.com',
+      email: 'laili@apa.com',
       password: null,
     };
 
